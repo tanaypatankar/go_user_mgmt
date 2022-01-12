@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -17,5 +18,5 @@ func InitializeRouter() {
 	// r.HandleFunc("/users/{userid}", controller.DeleteUser).Methods("DELETE")
 
 	http.Handle("/", r)
-	http.ListenAndServe("localhost:9010", nil)
+	log.Fatal(http.ListenAndServe("localhost:9010", nil))
 }
