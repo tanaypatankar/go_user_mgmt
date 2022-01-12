@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/tanaypatankar/go-workspace/dbtests/controller"
+	"github.com/tanaypatankar/go_user_mgmt/controller"
 )
 
 func InitializeRouter() {

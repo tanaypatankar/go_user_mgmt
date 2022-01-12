@@ -2,11 +2,12 @@ package controller
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/tanaypatankar/go-workspace/dbtests/database"
-	"github.com/tanaypatankar/go-workspace/dbtests/models"
+	"github.com/tanaypatankar/go_user_mgmt/database"
+	"github.com/tanaypatankar/go_user_mgmt/models"
 )
 
 func GetUsers(w http.ResponseWriter, r *http.Request) {
@@ -24,6 +25,7 @@ func GetUserByID(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	result := database.DB.First(&user, id)
 	if result.Error != nil {
+		log.Println(result.Error)
 		err := models.Error{
 			Message: "Record Not Found",
 		}

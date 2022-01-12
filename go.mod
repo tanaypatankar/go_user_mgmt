@@ -1,4 +1,4 @@
-module github.com/tanaypatankar/go-workspace/dbtests
+module github.com/tanaypatankar/go_user_mgmt
 
 go 1.17
 
