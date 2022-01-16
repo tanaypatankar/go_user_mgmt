@@ -2,8 +2,11 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/tanaypatankar/go_user_mgmt/database"
@@ -36,4 +39,45 @@ func GetUserByID(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(user)
 	}
 
+}
+
+func CreateUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var user models.User
+	json.NewDecoder(r.Body).Decode(&user)
+	database.DB.Create(&user)
+	json.NewEncoder(w).Encode(user)
+}
+
+func UpdateUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var user models.User
+	vars := mux.Vars(r)
+	defer r.Body.Close()
+	body, err := ioutil.ReadAll(r.Body)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	if result := database.DB.First(&user, vars["userid"]); result != nil {
+		fmt.Println(result.Error)
+	}
+	json.Unmarshal(body, &user)
+	id, err := strconv.Atoi(vars["userid"])
+	user.ID = uint(id)
+	database.DB.Save(&user)
+	json.NewEncoder(w).Encode(user)
+}
+func DeleteUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var user models.User
+	vars := mux.Vars(r)
+	defer r.Body.Close()
+
+	if result := database.DB.First(&user, vars["userid"]); result != nil {
+		fmt.Println(result.Error)
+	}
+	database.DB.Delete(&user)
+	json.NewEncoder(w).Encode(user)
 }
