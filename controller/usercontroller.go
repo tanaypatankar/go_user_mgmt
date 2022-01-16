@@ -2,11 +2,8 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/tanaypatankar/go_user_mgmt/database"
@@ -25,12 +22,13 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 func GetUserByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	id := mux.Vars(r)
+	defer r.Body.Close()
 	var user models.User
-	result := database.DB.First(&user, id)
-	if result.Error != nil {
+
+	if result := database.DB.First(&user, id); result.Error != nil {
 		log.Println(result.Error)
 		err := models.Error{
-			Message: "Record Not Found",
+			Message: result.Error.Error(),
 		}
 		w.WriteHeader(404)
 		json.NewEncoder(w).Encode(err)
@@ -43,10 +41,20 @@ func GetUserByID(w http.ResponseWriter, r *http.Request) {
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	defer r.Body.Close()
 	var user models.User
 	json.NewDecoder(r.Body).Decode(&user)
-	database.DB.Create(&user)
-	json.NewEncoder(w).Encode(user)
+
+	if result := database.DB.Create(&user); result.Error != nil {
+		log.Println(result.Error)
+		err := models.Error{
+			Message: result.Error.Error(),
+		}
+		w.WriteHeader(404)
+		json.NewEncoder(w).Encode(err)
+	} else {
+		json.NewEncoder(w).Encode(user)
+	}
 }
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
@@ -54,30 +62,39 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	vars := mux.Vars(r)
 	defer r.Body.Close()
-	body, err := ioutil.ReadAll(r.Body)
 
-	if err != nil {
-		log.Fatalln(err)
+	// Checks if record exists
+	if result := database.DB.First(&user, vars["id"]); result.Error != nil {
+		log.Println(result.Error)
+		err := models.Error{
+			Message: result.Error.Error(),
+		}
+		w.WriteHeader(404)
+		json.NewEncoder(w).Encode(err)
+	} else {
+		json.NewDecoder(r.Body).Decode(&user)
+		database.DB.Save(&user)
+		json.NewEncoder(w).Encode(user)
 	}
 
-	if result := database.DB.First(&user, vars["userid"]); result != nil {
-		fmt.Println(result.Error)
-	}
-	json.Unmarshal(body, &user)
-	id, err := strconv.Atoi(vars["userid"])
-	user.ID = uint(id)
-	database.DB.Save(&user)
-	json.NewEncoder(w).Encode(user)
 }
+
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var user models.User
 	vars := mux.Vars(r)
 	defer r.Body.Close()
 
-	if result := database.DB.First(&user, vars["userid"]); result != nil {
-		fmt.Println(result.Error)
+	if result := database.DB.First(&user, vars["id"]); result.Error != nil {
+		log.Println(result.Error)
+		err := models.Error{
+			Message: result.Error.Error(),
+		}
+		w.WriteHeader(404)
+		json.NewEncoder(w).Encode(err)
+	} else {
+		database.DB.Delete(&user)
+		json.NewEncoder(w).Encode(user)
 	}
-	database.DB.Delete(&user)
-	json.NewEncoder(w).Encode(user)
+
 }
