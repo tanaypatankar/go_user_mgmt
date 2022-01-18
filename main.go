@@ -19,13 +19,14 @@ func init() {
 }
 
 func main() {
-	fmt.Println("hi")
+
 	f, err := os.OpenFile("log.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		fmt.Println(err)
 	}
 	defer f.Close()
 	log.SetOutput(f)
+	fmt.Println("Database is being initialized")
 	database.DB_Init()
 	// user := models.User{
 	// 	Id:      1,
@@ -39,7 +40,7 @@ func main() {
 	// result := database.DB.Create(&user)
 	// fmt.Println(result.Error)
 	// fmt.Println(result.RowsAffected)
-
+	fmt.Println("Server is Starting")
 	routes.InitializeRouter()
 
 }
