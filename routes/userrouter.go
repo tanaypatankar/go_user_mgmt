@@ -14,7 +14,7 @@ func InitializeRouter() {
 	r.HandleFunc("/users/", controller.GetUsers).Methods("GET")
 	r.HandleFunc("/users/{id}", controller.GetUserByID).Methods("GET")
 	r.HandleFunc("/users/", controller.CreateUser).Methods("POST")
-	r.HandleFunc("/users/{id}", controller.UpdateUser).Methods("PUT")
+	r.HandleFunc("/users/", controller.UpdateUser).Methods("PUT")
 	r.HandleFunc("/users/{id}", controller.DeleteUser).Methods("DELETE")
 
 	http.Handle("/", r)

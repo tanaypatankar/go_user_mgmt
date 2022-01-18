@@ -11,7 +11,7 @@ import (
 )
 
 func GetUsers(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	// w.Header().Set("Content-Type", "application/json")
 	// fmt.Println(mux.Vars(r))
 	var users []models.User
 	database.DB.Find(&users)
@@ -20,7 +20,7 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetUserByID(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	// w.Header().Set("Content-Type", "application/json")
 	id := mux.Vars(r)
 	defer r.Body.Close()
 	var user models.User
@@ -60,11 +60,11 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var user models.User
-	vars := mux.Vars(r)
+	var original_user models.User
 	defer r.Body.Close()
-
+	json.NewDecoder(r.Body).Decode(&user)
 	// Checks if record exists
-	if result := database.DB.First(&user, vars["id"]); result.Error != nil {
+	if result := database.DB.First(&original_user, user.Id); result.Error != nil {
 		log.Println(result.Error)
 		err := models.Error{
 			Message: result.Error.Error(),
@@ -72,7 +72,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(404)
 		json.NewEncoder(w).Encode(err)
 	} else {
-		json.NewDecoder(r.Body).Decode(&user)
+
 		database.DB.Save(&user)
 		json.NewEncoder(w).Encode(user)
 	}
@@ -80,7 +80,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	// w.Header().Set("Content-Type", "application/json")
 	var user models.User
 	vars := mux.Vars(r)
 	defer r.Body.Close()
