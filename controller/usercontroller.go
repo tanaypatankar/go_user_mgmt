@@ -93,7 +93,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(404)
 		json.NewEncoder(w).Encode(err)
 	} else {
-		database.DB.Delete(&user)
+		database.DB.Unscoped().Delete(&user)
 		json.NewEncoder(w).Encode(user)
 	}
 
