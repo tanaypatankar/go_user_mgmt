@@ -50,6 +50,15 @@ func TestCreateUser(t *testing.T) {
 		t.Errorf("Returned unexpected body: got %v want %v", user_rec, tanay)
 	}
 
+	// Creating user that already exists
+	res, err = http.Post("http://localhost:9010/users/", "application/json", bytes.NewBuffer(responseBody))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if status := res.StatusCode; status != http.StatusNotFound {
+		t.Errorf("Returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
 }
 
 func TestGetUserByID(t *testing.T) {
@@ -68,6 +77,15 @@ func TestGetUserByID(t *testing.T) {
 	json.Unmarshal(body, &user_rec)
 	if user_rec != tanay {
 		t.Errorf("Returned unexpected body: got %v want %v", user_rec, tanay)
+	}
+
+	// Get user who doesnt exist
+	res, err = http.Get("http://localhost:9010/users/101")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if status := res.StatusCode; status != http.StatusNotFound {
+		t.Errorf("Returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
 }
@@ -155,5 +173,15 @@ func TestDeleteUser(t *testing.T) {
 	// Delete Tanay for cleanup
 	req2, _ := http.NewRequest("DELETE", "http://localhost:9010/users/100", nil)
 	http.DefaultClient.Do(req2)
+
+	// Delete user who doesnt exist
+	req2, _ = http.NewRequest("DELETE", "http://localhost:9010/users/100", nil)
+	res, err = http.DefaultClient.Do(req2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if status := res.StatusCode; status != http.StatusNotFound {
+		t.Errorf("Returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
 
 }
