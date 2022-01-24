@@ -18,5 +18,5 @@ func InitializeRouter() {
 	r.HandleFunc("/users/{id}", controller.DeleteUser).Methods("DELETE")
 
 	http.Handle("/", r)
-	log.Fatal(http.ListenAndServe("localhost:9010", nil))
+	log.Fatal(http.ListenAndServe("0.0.0.0:9010", nil))
 }
